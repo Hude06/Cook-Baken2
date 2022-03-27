@@ -71,7 +71,6 @@ class BakenModel {
 }
 class ScoreModel {
     lives: number;
-    lives: number
     constructor() {
         this.lives = 0
         this.lives = 0
@@ -151,7 +150,6 @@ class BakenView extends BaseView {
         super('baken')
         this.model = model;
         this.sprite_slice = spritesheet.sprites.find(sp => sp.name === 'baken')
-        this.set_text = ''
         this.set_size(new Size(8*SCALE,8*SCALE))
     }
     draw(g: CanvasSurface): void {
@@ -178,7 +176,7 @@ class ScoreView extends BaseView{
     constructor(score: ScoreModel, baken: BakenModel, font: SpriteFont) {
         super('score-view')
         this.score = score;
-        this.baken = baken;
+        this.Baken == baken;
         this.font = font;
         this.set_size(new Size(32,16))
     }
@@ -188,7 +186,7 @@ class ScoreView extends BaseView{
         // g.fillBackgroundSize(this.size(),'red')
         let lines = [
             `Baken ${this.score.lives}`,
-            `Coins ${this.score.level}`,
+            `Coins ${this.score.lives}`,
         ]
         lines.forEach((str,i) => {
             g.fillStandardText(str, 10, 16*i*4+32, 'base', 2)
@@ -360,13 +358,12 @@ export async function start() {
 
     function restart() {
         score.lives = 1
-        score.level = 1
+        score.lives = 1
         baken.speed = 1
         baken.position.copy_from(START_POSITION);
     }
 
     function nextLevel() {
-        score.level += 1
         board.fill_all(()=>EMPTY);
         board.fill_row(0,()=>WALL)
         board.fill_col(0,()=>WALL)
