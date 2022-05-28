@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-    <center><H1>COOK-THE-BAKEN</H1></center>
 
 <head>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -8,24 +7,38 @@
     <link href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet"> 
     <meta charset="UTF-8">
     <title>Cook-The-Baken</title>
-</head>
+    <style>
+        #grad1 {
+          height: 200px;
+          background-image: linear-gradient(to green, blue, yellow);
+        }
+        body {
+            background-color: aquamarine;
+            margin: 0;
+        }
+        #wrapper {
+            border: 1px solid red;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        h1 {
+            font-family: 'Anton', sans-serif;
+            font-size: 60px;
+            display: inline-block;
+            width: 200px;
+        }
+
+    </style>
+    </head>
 <body>
+    <div id="wrapper">
+        <h1>COOK-THE-BAKEN</h1>
+    </div>
+
 <script type="module">
     import {start} from "./snake.ts"
     start()
 </script>
 </body>
-<style>
-    #grad1 {
-      height: 200px;
-      background-image: linear-gradient(to green, blue, yellow);
-    }
-    body {
-        background-color: aquamarine;
-    }
-    h1 {
-        font-family: 'Anton', sans-serif;
-        font-size: 60px;
-    }
-</style>
 </html>

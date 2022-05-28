@@ -322,7 +322,7 @@ export async function start() {
     root.add(dialog_layer)
     dialog_layer.set_visible(false)
 
-    surface.addToPage();
+    surface.addToPage(document.getElementById("wrapper"));
     surface.set_root(root);
     surface.setup_keyboard_input()
     

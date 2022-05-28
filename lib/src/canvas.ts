@@ -54,8 +54,12 @@ export class CanvasSurface {
         this._pointer_target = null
     }
 
-    addToPage() {
-        document.body.appendChild(this.canvas);
+    addToPage(elem:any) {
+        if(elem) {
+            elem.appendChild(this.canvas);
+        } else {
+            document.body.appendChild(this.canvas);
+        }
     }
 
     set_root(root: View) {
