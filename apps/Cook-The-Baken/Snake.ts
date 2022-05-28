@@ -212,16 +212,14 @@ class SplashView extends BaseView {
         g.fillBackgroundSize(this.size(),'rgba(51,255,175')
         g.fillStandardText('Cook The Baken', x,150,'base',2)
         let lines = [
-            'Arrow keys move',
+            'Arrow keys to move',
             `'p' switch colors`,
             'Press Any Key To Start'
         ]
         lines.forEach((str,i) => {
             g.fillStandardText(str,x,220+i*32,'base',1)
         })
-        // g.fillStandardText('arrows to turn. p switch colors.',x,220,'base',1)
-        // g.fillStandardText('p switch colors.',x,240,'base',1)
-        // g.fillStandardText('press any key to play',x,260,'base',1)
+
     }
 
     layout2(g: CanvasSurface, available: Size): Size {
