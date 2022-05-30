@@ -34,7 +34,7 @@ const SPEEDS = [
     4,4,4
 ]
 const START_POSITION = new Point(15,15)
-const CANVAS_SIZE = new Size(30,20)
+const CANVAS_SIZE = new Size(33,20)
 const BOARD_SIZE = new Size(20,20)
 const EMPTY = 0;
 const WALL = 1;
@@ -42,6 +42,7 @@ const TAIL = 2;
 const FOOD = 3;
 const SHRINK = 5;
 const BAKEN = 4;
+const TOSTER = 6;
 const SCORE_POSITION = new Point(8*SCALE*10,8*SCALE*0)
 const HOME_POSTION = new Point(14*SCALE*-4,8*SCALE*0)
 const SHRINK_ODDS = 3
@@ -71,9 +72,13 @@ class BakenModel {
 }
 class ScoreModel {
     lives: number;
+    coin: number;
+    CookedBaken: number;
     constructor() {
         this.lives = 0
         this.lives = 0
+        this.coin = 0
+        this.CookedBaken = 0
     }
 }
 
@@ -83,6 +88,7 @@ class GridView extends BaseParentView {
     private wall_left: Sprite;
     private wall_right: Sprite;
     private empty: Sprite;
+    private toster: Sprite;
     private tail: Sprite;
     private food: Sprite;
     private shrink: Sprite;
@@ -98,6 +104,8 @@ class GridView extends BaseParentView {
         this.wall_top = sheet.sprites.find(s => s.name === 'wall_top')
         this.wall_bottom = sheet.sprites.find(s => s.name === 'wall_bottom')
         this.empty = sheet.sprites.find(s => s.name === 'ground')
+        this.toster = sheet.sprites.find(s => s.name === 'bed')
+        console.log("the toaster is",this.toster)
         this.tail = sheet.sprites.find(s => s.name === 'tail')
         this.food = sheet.sprites.find(s => s.name === 'food')
         this.baken = sheet.sprites.find(s => s.name === 'baken')
@@ -128,6 +136,8 @@ class GridView extends BaseParentView {
             if (w === FOOD) g.draw_sprite(xx,yy,this.food,SCALE)
             if (w === SHRINK) g.draw_sprite(xx,yy,this.shrink,SCALE)
             if (w === BAKEN) g.draw_sprite(xx,yy,this.baken,SCALE)
+            if (w === TOSTER) g.draw_sprite(xx,yy,this.toster,SCALE)
+
 
         })
     }
@@ -186,7 +196,9 @@ class ScoreView extends BaseView{
         // g.fillBackgroundSize(this.size(),'red')
         let lines = [
             `Baken ${this.score.lives}`,
-            `Coins ${this.score.lives}`,
+            `Coins ${this.score.coin}`,
+            `CookedBaken ${this.score.CookedBaken}`,
+
         ]
         lines.forEach((str,i) => {
             g.fillStandardText(str, 10, 16*i*4+32, 'base', 2)
@@ -208,16 +220,16 @@ class SplashView extends BaseView {
         g.ctx.lineWidth = 4
         g.ctx.strokeRect(4,4,this.size().w-4*2,this.size().h-4*2)
         g.ctx.restore()
-        let x = 175
+        let x = 240
         g.fillBackgroundSize(this.size(),'rgba(51,255,175')
-        g.fillStandardText('Cook The Baken', x,150,'base',2)
+        g.fillStandardText('Cook The Baken', x,145,'base',2)
         let lines = [
             'Arrow keys to move',
             `'p' switch colors`,
             'Press Any Key To Start'
         ]
         lines.forEach((str,i) => {
-            g.fillStandardText(str,x,220+i*32,'base',1)
+            g.fillStandardText(str,262,220+i*32,'base',1)
         })
 
     }
@@ -356,8 +368,9 @@ export async function start() {
 
     function restart() {
         score.lives = 1
-        score.lives = 1
-        baken.speed = 1
+        score.coin = 0
+        score.CookedBaken = 0
+        
         baken.position.copy_from(START_POSITION);
     }
 
@@ -368,12 +381,24 @@ export async function start() {
         board.fill_row(board.h-1,()=>WALL)
         board.fill_col(board.w-1,()=>WALL)
         board.set_at(new Point(randi(1,16),7), BAKEN)
+        board.set_at(new Point(10,1),TOSTER)
     }
 
     let clock = 0
-    function turn_to(pt) {
-        baken.position = baken.position.add(pt)
+    function turn_to(off) {
+        let new_position = baken.position.add(off) 
+        let spot = board.get_at(new_position)
+        if(spot === WALL) {
+            return
+        }
+        if(spot === TOSTER) {
+            console.log('we should open a new menu now')
+            return
+        }
+
+        baken.position = new_position
     }
+  
     
     function process_tick() {
         clock += 1
@@ -381,24 +406,21 @@ export async function start() {
 
         let spot = board.get_at(baken.position);
         if (spot === BAKEN) {
-            console.log("lives going up")
             score.lives += 1
             board.set_at(baken.position,  EMPTY)
             board.set_at(new Point(randi(1,16),randi(1,16)), BAKEN)
             return
-            
         }
 
-        
 
         //drop a tail spot where the head is
-        board.set_at(baken.position,TAIL)
+        // board.set_at(baken.position,TAIL)
         //add to the tail
-        baken.tail.push_end(baken.position);
+        // baken.tail.push_end(baken.position);
         // trim tail if too long
-        while (baken.tail.length() > baken.length) {
-            board.set_at(baken.tail.pop_start(),EMPTY) // remove tail spot
-        }   
+        // while (baken.tail.length() > baken.length) {
+        //     board.set_at(baken.tail.pop_start(),EMPTY) // remove tail spot
+        // }   
         //check the new spot
         // if (spot === WALL) return die();
         // if (spot === TAIL) return die();
@@ -412,4 +434,5 @@ export async function start() {
         requestAnimationFrame(refresh)
     }
     requestAnimationFrame(refresh)
+    
 }
