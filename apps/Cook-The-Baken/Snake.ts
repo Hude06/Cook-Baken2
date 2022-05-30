@@ -19,6 +19,7 @@ import {
     Sprite,
     SpriteFont, Tilemap
 } from "../tileeditor/app-model";
+import { NumericLiteral } from "typescript";
 
 const SCALE = 3
 const SPEEDS = [
@@ -34,7 +35,7 @@ const SPEEDS = [
     4,4,4
 ]
 const START_POSITION = new Point(15,15)
-const CANVAS_SIZE = new Size(33,20)
+const CANVAS_SIZE = new Size(43,20)
 const BOARD_SIZE = new Size(20,20)
 const EMPTY = 0;
 const WALL = 1;
@@ -43,7 +44,10 @@ const FOOD = 3;
 const SHRINK = 5;
 const BAKEN = 4;
 const TOSTER = 6;
-const SCORE_POSITION = new Point(8*SCALE*10,8*SCALE*0)
+const BILL_POSITION  = new Point(8*SCALE*0,8*SCALE*0)
+const GRID_POSITION = new Point(8*SCALE*12,8*SCALE*0)
+const TOASTER_POSITION = new Point(4*SCALE*13,4*SCALE*1)
+const SCORE_POSITION = new Point(8*SCALE*16,8*SCALE*0)
 const HOME_POSTION = new Point(14*SCALE*-4,8*SCALE*0)
 const SHRINK_ODDS = 3
 const BAKEN_ODDS = 4
@@ -73,12 +77,15 @@ class BakenModel {
 class ScoreModel {
     lives: number;
     coin: number;
+    start_time: number;
+    bill: number;
     CookedBaken: number;
     constructor() {
         this.lives = 0
         this.lives = 0
         this.coin = 0
         this.CookedBaken = 0
+        this.bill = 0
     }
 }
 
@@ -165,7 +172,7 @@ class BakenView extends BaseView {
     draw(g: CanvasSurface): void {
         g.ctx.imageSmoothingEnabled = false
         // g.fill(new Rect(0,0,16,16),'yellow')
-        g.draw_sprite(0,0,this.sprite_slice,SCALE)
+        g.draw_sprite(GRID_POSITION.x,GRID_POSITION.y,this.sprite_slice,SCALE)
     }
     position(): Point {
         return new Point(
@@ -188,16 +195,21 @@ class ScoreView extends BaseView{
         this.score = score;
         this.Baken == baken;
         this.font = font;
-        this.set_size(new Size(32,16))
+
     }
     draw(g: CanvasSurface): void {
         g.ctx.save()
         g.ctx.translate(this.position().x,this.position().y)
         // g.fillBackgroundSize(this.size(),'red')
+        this.set_size(new Size(300,480))
+        g.fillBackgroundSize(this.size(),'#00ffab')
+
+
         let lines = [
             `Baken ${this.score.lives}`,
             `Coins ${this.score.coin}`,
             `CookedBaken ${this.score.CookedBaken}`,
+            
 
         ]
         lines.forEach((str,i) => {
@@ -209,6 +221,97 @@ class ScoreView extends BaseView{
         return this.size()
     }
 }
+
+class BillView extends BaseView {
+    private score: ScoreModel;
+    private font: SpriteFont;
+    private Baken: BakenModel;
+    private last_time: number;
+    constructor(score: ScoreModel, baken: BakenModel, font: SpriteFont) {
+        super('score-view')
+        this.score = score;
+        this.Baken == baken;
+        this.font = font;    }
+    draw(g: CanvasSurface): void {
+        g.ctx.save()
+        let current = Date.now()
+        let diff = current - this.score.start_time
+        let diff_seconds =  Math.floor(diff/1000)
+        log(diff_seconds)
+        if(this.last_time === 29 && diff_seconds === 30) {
+            this.score.bill = this.score.bill + 1
+            this.score.start_time = current
+        }
+        this.last_time = diff_seconds
+        
+        // g.ctx.translate(this.position().x,this.position().y)
+        g.fillBackgroundSize(this.size(),'#00ffab')
+        let lines = [
+            `Bill ${this.score.bill}`,
+            // `Coins ${this.score.coin}`,
+            // `CookedBaken ${this.score.CookedBaken}`,
+            
+
+        ]
+        lines.forEach((str,i) => {
+            g.fillStandardText(str, 10, 16*i*4+32, 'base', 2)
+        })
+        g.ctx.restore()
+    }
+    layout2(g: CanvasSurface, available: Size): Size {
+        this.set_size(new Size(288,477))
+        return this.size()
+    }
+}
+
+class ToasterView extends BaseView{
+    // private score: ScoreModel;
+    // private font: SpriteFont;
+    // private Baken: BakenModel;
+
+    constructor() {
+        super('score-view')
+        // this.score = score;
+        // this.Baken == baken;
+        // this.font = font;
+
+    }
+    set_visible(visible: boolean) {
+        this._visible = visible
+    }
+    draw(g: CanvasSurface): void {
+        g.ctx.save()
+        g.ctx.translate(this.position().x,this.position().y)
+        // g.fillBackgroundSize(this.size(),'red')
+        // this.set_size(new Size(300,480))
+        g.fillBackgroundSize(this.size(),'yellow')
+
+
+        let lines = [
+            // `Baken ${this.score.lives}`,
+            // `Coins ${this.score.coin}`,
+            // `CookedBaken ${this.score.CookedBaken}`,
+            
+
+        ]
+        lines.forEach((str,i) => {
+            g.fillStandardText(str, 10, 16*i*4+32, 'base', 2)
+        })
+        g.ctx.restore()
+    }
+    layout2(g: CanvasSurface, available: Size): Size {
+        this.set_size(new Size(8*SCALE*18,8*SCALE*18))
+        return this.size()
+    }
+}
+
+
+
+
+    
+
+
+
 class SplashView extends BaseView {
     constructor() {
         super('splash-view');
@@ -219,8 +322,10 @@ class SplashView extends BaseView {
         g.ctx.strokeStyle = 'black'
         g.ctx.lineWidth = 4
         g.ctx.strokeRect(4,4,this.size().w-4*2,this.size().h-4*2)
+
         g.ctx.restore()
-        let x = 240
+        let x = 340
+
         g.fillBackgroundSize(this.size(),'rgba(51,255,175')
         g.fillStandardText('Cook The Baken', x,145,'base',2)
         let lines = [
@@ -243,6 +348,7 @@ class SplashView extends BaseView {
         this._visible = visible
     }
 }
+
 class DialogView extends BaseView {
     private text: string;
     private map: Tilemap;
@@ -309,6 +415,7 @@ export async function start() {
     let board_layer = new LayerView();
     board_layer._name = 'board'
     let board_view = new GridView(board,doc.sheets[0])
+    board_view.set_position(GRID_POSITION)
     board_layer.add(board_view);
     root.add(board_layer);
 
@@ -317,17 +424,44 @@ export async function start() {
     home_view.set_position(HOME_POSTION)
     home_view.set_visible(false)
 
-    root.add(new BakenView(baken,doc.sheets[0]));
+    let baken_view = new BakenView(baken,doc.sheets[0])
+    root.add(baken_view)
 
 
     let score = new ScoreModel()
     let score_view = new ScoreView(score, baken, doc.fonts[0])
     score_view.set_position(SCORE_POSITION)
     board_layer.add(score_view)
+
+    let bill = new BillView(score, baken, doc.fonts[0])
+    bill.set_position(BILL_POSITION)
+    board_layer.add(bill)
     
 
+    let toaster_view = new ToasterView();
+    toaster_view.set_position(TOASTER_POSITION)
+    root.add(toaster_view)
+    toaster_view.set_visible(false)
     let splash_layer = new SplashView();
     root.add(splash_layer);
+            // Create a button element
+            const button = document.createElement('button')
+
+            // Set the button text to 'Can you click me?'
+            button.innerText = 'Back to Baken World'
+        
+            button.id = 'mainButton'
+        
+            // Attach the "click" event to your button
+            button.addEventListener('click', () => {
+              // When there is a "click"
+              // it shows an alert in the browser
+              toaster_view.set_visible(false)
+            })
+        
+            document.body.appendChild(button)
+
+
 
 
     let dialog_layer = new DialogView(doc.maps.find(m => m.name === 'dialog'), doc.sheets[0]);
@@ -367,8 +501,10 @@ export async function start() {
     let gameover = true
 
     function restart() {
-        score.lives = 1
+        score.lives = 0
         score.coin = 0
+        score.bill = 0
+        score.start_time = Date.now()
         score.CookedBaken = 0
         
         baken.position.copy_from(START_POSITION);
@@ -392,8 +528,8 @@ export async function start() {
             return
         }
         if(spot === TOSTER) {
-            console.log('we should open a new menu now')
-            return
+            toaster_view.set_visible(true)
+             return
         }
 
         baken.position = new_position
@@ -412,18 +548,6 @@ export async function start() {
             return
         }
 
-
-        //drop a tail spot where the head is
-        // board.set_at(baken.position,TAIL)
-        //add to the tail
-        // baken.tail.push_end(baken.position);
-        // trim tail if too long
-        // while (baken.tail.length() > baken.length) {
-        //     board.set_at(baken.tail.pop_start(),EMPTY) // remove tail spot
-        // }   
-        //check the new spot
-        // if (spot === WALL) return die();
-        // if (spot === TAIL) return die();
     }
 
     restart()
@@ -436,3 +560,4 @@ export async function start() {
     requestAnimationFrame(refresh)
     
 }
+
