@@ -1,0 +1,89 @@
+button {
+    display:none;
+}
+button.visible {
+    display: block;
+}
+
+#pay-button {
+    margin-left: 50px;
+    margin-top: 50px;
+    background-color: #27b1fb; /* Green */
+    border: none;
+    color: white;
+    text-decoration: none;
+    font-size: 20px;
+    border-radius: 2px;
+    position:absolute; left:200px; top:143px;
+}
+#forward {
+    margin-left: 20px;
+    margin-top: 50px;
+    background-color: #27b1fb; /* Green */
+    border: none;
+    color: white;
+    text-decoration: none;
+    font-size: 18px;
+    border-radius: 2px;
+    position:absolute; left:975px; top:475px;
+}
+#Toast {
+    margin-left: 50px;
+    margin-top: 50px;
+    background-color: #27b1fb; /* Green */
+    border: none;
+    color: white;
+    text-decoration: none;
+    font-size: 18px;
+    border-radius: 2px;
+    position:absolute; left:400px; top:200px;
+}
+#grad1 {
+  height: 200px;
+  background-image: linear-gradient(to green, blue, yellow);
+}
+body {
+    background-color: aquamarine;
+    margin: 0;
+}
+#wrapper {
+    display: flex;
+    margin-left: 126.5px;
+}
+h1 {
+    font-family: 'Anton', sans-serif;
+    font-size: 60px;
+    text-align: center;
+    
+
+}
+.main-button {
+    position: relative;
+    top: -450px;
+    left: 440px;
+    background-color: #27b1fb; /* Green */
+    border: none;
+    color: white;
+    text-decoration: none;
+    font-size: 12px;
+    cursor: pointer;
+    display: none;
+    border-radius: 2px;
+
+}
+#button {
+    background-color: #27b1fb; /* Green */
+
+}
+
+.visible {
+    display: block;
+}
+
+
+@media only screen and (orientation:landscape){
+    #wrapper {width:1024px}
+    }
+
+
+

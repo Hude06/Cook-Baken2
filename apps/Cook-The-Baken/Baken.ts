@@ -437,6 +437,12 @@ export async function start() {
             score.bill -= 1
         }
     })
+    let forward = document.getElementById("forward")
+    forward.addEventListener('click',()=> {
+        forward.classList.add("visible")
+    })
+    forward.classList.add("visible")
+
     let Toast = document.getElementById("Toast")
     //Toast.classList.add("visible")
     //Toast.classList.remove("visible")
@@ -450,6 +456,7 @@ export async function start() {
                 
             } 
     })
+
 
     let dialog_layer = new DialogView(doc.maps.find(m => m.name === 'dialog'), doc.sheets[0]);
     root.add(dialog_layer)
