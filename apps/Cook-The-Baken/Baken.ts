@@ -437,11 +437,11 @@ export async function start() {
             score.bill -= 1
         }
     })
-    let forward = document.getElementById("forward")
-    forward.addEventListener('click',()=> {
-        forward.classList.add("visible")
-    })
-    forward.classList.add("visible")
+    // let forward = document.getElementById("forward")
+    // forward.addEventListener('click',()=> {
+    //     forward.classList.add("visible")
+    // })
+    // forward.classList.add("visible")
 
     let Toast = document.getElementById("Toast")
     //Toast.classList.add("visible")
