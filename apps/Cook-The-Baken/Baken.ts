@@ -1,5 +1,4 @@
 import {on, randi} from "../../common/util";
-// @ts-ignore
 import snake_json from "./snake.json";
 import {
     CanvasSurface, EVENTS,
@@ -19,7 +18,7 @@ import {
     Sprite,
     SpriteFont, Tilemap
 } from "../tileeditor/app-model";
-import { NumericLiteral } from "typescript";
+import { NumericLiteral, ScriptElementKind } from "typescript";
 
 const SCALE = 3
 const SPEEDS = [
@@ -39,9 +38,6 @@ const CANVAS_SIZE = new Size(43,20)
 const BOARD_SIZE = new Size(20,20)
 const EMPTY = 0;
 const WALL = 1;
-const TAIL = 2;
-const FOOD = 3;
-const SHRINK = 5;
 const BAKEN = 4;
 const TOSTER = 6;
 const BILL_POSITION  = new Point(8*SCALE*0,8*SCALE*0)
@@ -62,13 +58,11 @@ const COLOR_PALETTES = [
 class BakenModel {
     position: Point
     direction: Point
-    tail: SuperArray
     speed:number
     length:number
     constructor() {
         this.position = new Point(0,0)
         this.direction = new Point(0,-1)
-        this.tail = new SuperArray()
         this.speed = 0
         this.length = 1
     }
@@ -96,9 +90,6 @@ class GridView extends BaseParentView {
     private wall_right: Sprite;
     private empty: Sprite;
     private toster: Sprite;
-    private tail: Sprite;
-    private food: Sprite;
-    private shrink: Sprite;
     private baken: Sprite;
     private wall_top: Sprite;
     private wall_bottom: Sprite;
@@ -113,10 +104,7 @@ class GridView extends BaseParentView {
         this.empty = sheet.sprites.find(s => s.name === 'ground')
         this.toster = sheet.sprites.find(s => s.name === 'bed')
         console.log("the toaster is",this.toster)
-        this.tail = sheet.sprites.find(s => s.name === 'tail')
-        this.food = sheet.sprites.find(s => s.name === 'food')
         this.baken = sheet.sprites.find(s => s.name === 'baken')
-        this.shrink = sheet.sprites.find(s => s.name === 'potion')
     }
     draw(g: CanvasSurface): void {
         g.ctx.imageSmoothingEnabled = false
@@ -125,9 +113,6 @@ class GridView extends BaseParentView {
             let color = 'white'
             if (w === EMPTY) color = 'white'
             if (w === WALL) color = 'blue'
-            if (w === TAIL) color = 'orange'
-            if (w === FOOD) color = 'red'
-            if (w === SHRINK) color = 'green'
 
             let xx = x*8*SCALE
             let yy = y*8*SCALE
@@ -139,9 +124,6 @@ class GridView extends BaseParentView {
                 if(y === 0) g.draw_sprite(xx, yy, this.wall_top, SCALE)
                 if(y === this.model.w-1) g.draw_sprite(xx, yy, this.wall_bottom, SCALE)
             }
-            if (w === TAIL) g.draw_sprite(xx,yy,this.tail,SCALE)
-            if (w === FOOD) g.draw_sprite(xx,yy,this.food,SCALE)
-            if (w === SHRINK) g.draw_sprite(xx,yy,this.shrink,SCALE)
             if (w === BAKEN) g.draw_sprite(xx,yy,this.baken,SCALE)
             if (w === TOSTER) g.draw_sprite(xx,yy,this.toster,SCALE)
 
@@ -171,7 +153,7 @@ class BakenView extends BaseView {
     }
     draw(g: CanvasSurface): void {
         g.ctx.imageSmoothingEnabled = false
-        // g.fill(new Rect(0,0,16,16),'yellow')
+        // g.fill(new Rect(0,0,16,16),'#ff0000')
         g.draw_sprite(GRID_POSITION.x,GRID_POSITION.y,this.sprite_slice,SCALE)
     }
     position(): Point {
@@ -284,7 +266,9 @@ class ToasterView extends BaseView{
         g.ctx.translate(this.position().x,this.position().y)
         // g.fillBackgroundSize(this.size(),'red')
         // this.set_size(new Size(300,480))
-        g.fillBackgroundSize(this.size(),'yellow')
+        g.fillBackgroundSize(this.size(),'#a9aaaa')
+        g.fillStandardText('Toaster', 150,20,'base',2)
+
 
 
         let lines = [
@@ -305,13 +289,6 @@ class ToasterView extends BaseView{
     }
 }
 
-
-
-
-    
-
-
-
 class SplashView extends BaseView {
     constructor() {
         super('splash-view');
@@ -322,10 +299,8 @@ class SplashView extends BaseView {
         g.ctx.strokeStyle = 'black'
         g.ctx.lineWidth = 4
         g.ctx.strokeRect(4,4,this.size().w-4*2,this.size().h-4*2)
-
         g.ctx.restore()
         let x = 340
-
         g.fillBackgroundSize(this.size(),'rgba(51,255,175')
         g.fillStandardText('Cook The Baken', x,145,'base',2)
         let lines = [
@@ -338,17 +313,14 @@ class SplashView extends BaseView {
         })
 
     }
-
     layout2(g: CanvasSurface, available: Size): Size {
         this.set_size(available)
         return this.size()
     }
-
     set_visible(visible: boolean) {
         this._visible = visible
     }
 }
-
 class DialogView extends BaseView {
     private text: string;
     private map: Tilemap;
@@ -441,28 +413,43 @@ export async function start() {
     let toaster_view = new ToasterView();
     toaster_view.set_position(TOASTER_POSITION)
     root.add(toaster_view)
+    
     toaster_view.set_visible(false)
     let splash_layer = new SplashView();
     root.add(splash_layer);
-            // Create a button element
-            const button = document.createElement('button')
 
-            // Set the button text to 'Can you click me?'
-            button.innerText = 'Back to Baken World'
-        
-            button.id = 'mainButton'
-        
-            // Attach the "click" event to your button
-            button.addEventListener('click', () => {
-              // When there is a "click"
-              // it shows an alert in the browser
-              toaster_view.set_visible(false)
-            })
-        
-            document.body.appendChild(button)
+    // first button
+    const button = document.createElement('button')
+    button.innerText = 'Baken World'
+    button.id = 'mainButton'
+    button.classList.add('main-button')        
+    button.addEventListener('click', () => {
+        toaster_view.set_visible(false)
+        button.classList.remove("visible")
+        Toast.classList.remove("visible")
 
+    })
+    document.body.appendChild(button)
 
+    let pay_button = document.getElementById("pay-button")
+    pay_button.addEventListener('click',()=> {
+        if(score.coin > 1) {
+            score.bill -= 1
+        }
+    })
+    let Toast = document.getElementById("Toast")
+    //Toast.classList.add("visible")
+    //Toast.classList.remove("visible")
 
+    Toast.addEventListener('click',()=> {
+            if(score.lives >= 1) {
+                score.lives -= 1
+                score.CookedBaken += 1
+
+             
+                
+            } 
+    })
 
     let dialog_layer = new DialogView(doc.maps.find(m => m.name === 'dialog'), doc.sheets[0]);
     root.add(dialog_layer)
@@ -483,6 +470,8 @@ export async function start() {
             splash_layer.set_visible(false)
             gameover = false
             playing = true
+            pay_button.classList.add("visible")
+
             nextLevel()
         }
         if(e.type === 'keydown') {
@@ -529,6 +518,9 @@ export async function start() {
         }
         if(spot === TOSTER) {
             toaster_view.set_visible(true)
+            button.classList.add("visible")
+            Toast.classList.add("visible")
+
              return
         }
 
