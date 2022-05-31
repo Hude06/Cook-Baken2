@@ -1,25 +1,18 @@
-import {on, randi} from "../../common/util";
-import snake_json from "./snake.json";
 import {
-    CanvasSurface, EVENTS,
-    log,
-} from "../../lib/src/canvas";
-import {GridModel} from "../../common/models";
-import {LayerView} from "../../lib/src/components";
-import {Observable, Point, Rect, Size, SuperArray} from "../../lib/src/common";
-import {CommonEvent, BaseView, BaseParentView} from "../../lib/src/core";
-import {
-    CHERRY_BLOSSOM,
-    DEMI_CHROME,
-    Doc, DUNE,
-    GRAYSCALE_PALETTE,
-    INVERTED_PALETTE,
-    Sheet,
     Sprite,
-    SpriteFont, Tilemap
-} from "../tileeditor/app-model";
-import { NumericLiteral, ScriptElementKind } from "typescript";
+    Rect,
+    Point,
+    CanvasSurface,
+    BaseView,
+    Size,
+    BaseParentView, Sheet, SpriteFont, Tilemap, randi, log, LayerView, KEYBOARD_DOWN, POINTER_MOVE,
+} from "thneed-gfx";
 
+
+// @ts-ignore
+import snake_json from "./snake.json";
+import {GridModel} from "./models";
+import {Doc} from "../apps/tileeditor/app-model";
 const SCALE = 3
 const SPEEDS = [
     40,35,30,25,20,20,20,
@@ -47,13 +40,6 @@ const SCORE_POSITION = new Point(8*SCALE*16,8*SCALE*0)
 const HOME_POSTION = new Point(14*SCALE*-4,8*SCALE*0)
 const SHRINK_ODDS = 3
 const BAKEN_ODDS = 4
-const COLOR_PALETTES = [
-    GRAYSCALE_PALETTE,
-    INVERTED_PALETTE,
-    DEMI_CHROME,
-    CHERRY_BLOSSOM,
-    DUNE,
-]
 
 class BakenModel {
     position: Point
@@ -103,7 +89,6 @@ class GridView extends BaseParentView {
         this.wall_bottom = sheet.sprites.find(s => s.name === 'wall_bottom')
         this.empty = sheet.sprites.find(s => s.name === 'ground')
         this.toster = sheet.sprites.find(s => s.name === 'bed')
-        console.log("the toaster is",this.toster)
         this.baken = sheet.sprites.find(s => s.name === 'baken')
     }
     draw(g: CanvasSurface): void {
@@ -130,16 +115,14 @@ class GridView extends BaseParentView {
 
         })
     }
-    input(event: CommonEvent): void {
-    }
-
-    layout2(g: CanvasSurface, available: Size): Size {
+    layout(g: CanvasSurface, available: Size): Size {
         this.set_size(new Size(this.model.w*8*SCALE,this.model.h*8*SCALE))
         return this.size()
     }
     set_visible(visible: boolean) {
         this._visible = visible
     }
+
  }
 
 class BakenView extends BaseView {
@@ -163,7 +146,7 @@ class BakenView extends BaseView {
         )
     }
 
-    layout2(g: CanvasSurface, available: Size): Size {
+    layout(g: CanvasSurface, available: Size): Size {
         return this.size()
     }
 }
@@ -199,7 +182,7 @@ class ScoreView extends BaseView{
         })
         g.ctx.restore()
     }
-    layout2(g: CanvasSurface, available: Size): Size {
+    layout(g: CanvasSurface, available: Size): Size {
         return this.size()
     }
 }
@@ -219,14 +202,11 @@ class BillView extends BaseView {
         let current = Date.now()
         let diff = current - this.score.start_time
         let diff_seconds =  Math.floor(diff/1000)
-        log(diff_seconds)
         if(this.last_time === 29 && diff_seconds === 30) {
             this.score.bill = this.score.bill + 1
             this.score.start_time = current
         }
         this.last_time = diff_seconds
-        
-        // g.ctx.translate(this.position().x,this.position().y)
         g.fillBackgroundSize(this.size(),'#00ffab')
         let lines = [
             `Bill ${this.score.bill}`,
@@ -240,7 +220,7 @@ class BillView extends BaseView {
         })
         g.ctx.restore()
     }
-    layout2(g: CanvasSurface, available: Size): Size {
+    layout(g: CanvasSurface, available: Size): Size {
         this.set_size(new Size(288,477))
         return this.size()
     }
@@ -283,7 +263,7 @@ class ToasterView extends BaseView{
         })
         g.ctx.restore()
     }
-    layout2(g: CanvasSurface, available: Size): Size {
+    layout(g: CanvasSurface, available: Size): Size {
         this.set_size(new Size(8*SCALE*18,8*SCALE*18))
         return this.size()
     }
@@ -313,7 +293,7 @@ class SplashView extends BaseView {
         })
 
     }
-    layout2(g: CanvasSurface, available: Size): Size {
+    layout(g: CanvasSurface, available: Size): Size {
         this.set_size(available)
         return this.size()
     }
@@ -342,7 +322,7 @@ class DialogView extends BaseView {
         g.draw_tilemap(this.map,this.sheet,map_x,16,map_scale)
         g.fillStandardText(this.text, text_x,150,'base',2)
     }
-    layout2(g: CanvasSurface, available: Size): Size {
+    layout(g: CanvasSurface, available: Size): Size {
         this.set_size(available)
         return this.size()
     }
@@ -355,25 +335,11 @@ class DialogView extends BaseView {
     }
 }
 
-
-function find_empty_point(board: GridModel, min: number, max: number):Point {
-    while(true) {
-        let x = randi(min,max)
-        let y = randi(min,max)
-        if(board.get_xy(x,y) === EMPTY) {
-            return new Point(x,y)
-        }
-    }
-}
-
-
 export async function start() {
     log("starting", snake_json)
     log("total level count =", SPEEDS.length)
     let doc = new Doc()
     doc.reset_from_json(snake_json)
-
-    let All = new Observable();
 
     let surface = new CanvasSurface(CANVAS_SIZE.w*8*SCALE,CANVAS_SIZE.h*8*SCALE);
     surface.load_jsonfont(doc,'base','base')
@@ -385,7 +351,7 @@ export async function start() {
     let board = new GridModel(BOARD_SIZE)
     board.fill_all(()=>EMPTY)
     let board_layer = new LayerView();
-    board_layer._name = 'board'
+    board_layer.set_name('board')
     let board_view = new GridView(board,doc.sheets[0])
     board_view.set_position(GRID_POSITION)
     board_layer.add(board_view);
@@ -419,17 +385,13 @@ export async function start() {
     root.add(splash_layer);
 
     // first button
-    const button = document.createElement('button')
-    button.innerText = 'Baken World'
-    button.id = 'mainButton'
-    button.classList.add('main-button')        
-    button.addEventListener('click', () => {
+    const world_button = document.getElementById('world-button')
+    world_button.addEventListener('click', () => {
         toaster_view.set_visible(false)
-        button.classList.remove("visible")
-        Toast.classList.remove("visible")
+        world_button.classList.remove("visible")
+        toast.classList.remove("visible")
 
     })
-    document.body.appendChild(button)
 
     let pay_button = document.getElementById("pay-button")
     pay_button.addEventListener('click',()=> {
@@ -437,24 +399,13 @@ export async function start() {
             score.bill -= 1
         }
     })
-    // let forward = document.getElementById("forward")
-    // forward.addEventListener('click',()=> {
-    //     forward.classList.add("visible")
-    // })
-    // forward.classList.add("visible")
 
-    let Toast = document.getElementById("Toast")
-    //Toast.classList.add("visible")
-    //Toast.classList.remove("visible")
-
-    Toast.addEventListener('click',()=> {
+    let toast = document.getElementById("toast")
+    toast.addEventListener('click',()=> {
             if(score.lives >= 1) {
                 score.lives -= 1
                 score.CookedBaken += 1
-
-             
-                
-            } 
+            }
     })
 
 
@@ -462,35 +413,23 @@ export async function start() {
     root.add(dialog_layer)
     dialog_layer.set_visible(false)
 
-    surface.addToPage(document.getElementById("wrapper"));
     surface.set_root(root);
-    surface.setup_keyboard_input()
-    
-    let current_palette = 0
-    function cycle_palette() {
-        current_palette = (current_palette + 1) % COLOR_PALETTES.length
-        doc.set_palette(COLOR_PALETTES[current_palette])
-    }
+    surface.start()
 
     surface.on_input((e) => {
-        if(gameover) {
-            splash_layer.set_visible(false)
-            gameover = false
-            playing = true
-            pay_button.classList.add("visible")
+        if(e.type === KEYBOARD_DOWN) {
+            if(gameover) {
+                splash_layer.set_visible(false)
+                gameover = false
+                playing = true
+                pay_button.classList.add("visible")
+                nextLevel()
+            }
 
-            nextLevel()
-        }
-        if(e.type === 'keydown') {
             if(e.key === 'ArrowLeft')  turn_to(new Point(-1,0));
             if(e.key === 'ArrowRight') turn_to(new Point(+1,0));
             if(e.key === 'ArrowUp')    turn_to(new Point(+0,-1));
             if(e.key === 'ArrowDown')  turn_to(new Point(+0,+1));
-            if(e.key === 'p') cycle_palette()
-            if(e.key === 'h') {
-                home_view.set_visible(true)
-                board_view.set_visible(false)
-            }
         }
     })
     let playing = false
@@ -525,8 +464,8 @@ export async function start() {
         }
         if(spot === TOSTER) {
             toaster_view.set_visible(true)
-            button.classList.add("visible")
-            Toast.classList.add("visible")
+            world_button.classList.add("visible")
+            toast.classList.add("visible")
 
              return
         }

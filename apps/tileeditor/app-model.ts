@@ -1,5 +1,4 @@
-import {CanvasSurface} from "../../lib/src/canvas";
-import {gen_id} from "../../lib/src/common";
+import {CanvasSurface, gen_id, Palette, Sheet, Sprite, SpriteFont, SpriteGlyph, Tilemap} from "thneed-gfx";
 
 export const GRAYSCALE_PALETTE = [
     '#ff00ff',
@@ -8,150 +7,6 @@ export const GRAYSCALE_PALETTE = [
     '#909090',
     '#404040',
 ];
-export const INVERTED_PALETTE = [
-    '#ff00ff',
-    '#404040',
-    '#909090',
-    '#d0d0d0',
-    '#f0f0f0',
-];
-export const DEMI_CHROME = [
-    '#ff00ff',
-    '#e9efec',
-    '#a0a08b',
-    '#555568',
-    '#211e20',
-];
-export const CHERRY_BLOSSOM = [
-    '#ff00ff',
-    '#ffe9fc',
-    '#e6cdf7',
-    '#dea0d9',
-    '#a76e87',
-];
-export const DUNE = [
-    '#ff00ff',
-    '#edcda7',
-    '#dcac70',
-    '#e67718',
-    '#320404',
-];
-
-export class Sprite {
-    id: string
-    name:string
-    w: number
-    h: number
-    data: number[]
-    _img: HTMLCanvasElement
-    private doc: Doc;
-
-    constructor(id:string, name:string, w:number, h:number, doc:Doc) {
-        this.id = id || gen_id('unknown');
-        this.doc = doc
-        this.name = name || 'unknown'
-        this.w = w;
-        this.h = h;
-        this.data = []
-        for (let i = 0; i < this.w * this.h; i++) {
-            this.data[i] = 0;
-        }
-        this._img = document.createElement('canvas')
-        this._img.width = this.w
-        this._img.height = this.h
-    }
-
-    forEachPixel(cb: (val: any, i: number, j: number) => void) {
-        for (let j = 0; j < this.h; j++) {
-            for (let i = 0; i < this.w; i++) {
-                let n = j * this.w + i;
-                let v = this.data[n];
-                cb(v, i, j);
-            }
-        }
-    }
-
-    set_pixel(x: number, y: number, color: any) {
-        let n = y * this.w + x;
-        this.data[n] = color;
-        this.sync()
-    }
-    sync() {
-        let c = this._img.getContext('2d')
-        let pal = this.doc.palette()
-        this.forEachPixel((v,i,j)=>{
-            c.fillStyle = pal[v]
-            c.fillRect(i, j, 1, 1)
-        })
-    }
-
-    get_pixel(x: number, y: number):any {
-        let n = y * this.w + x;
-        return this.data[n]
-    }
-
-    toJsonObj():object {
-        return {
-            clazz:'Sprite',
-            id:this.id,
-            name:this.name,
-            w:this.w,
-            h:this.h,
-            data:this.data,
-        }
-    }
-}
-
-export class Tilemap {
-    id:string
-    name: string
-    w: number
-    h: number
-    data: number[];
-
-    constructor(id, name, w, h) {
-        this.id = id || gen_id('unknown');
-        this.name = name || 'unknown'
-        this.w = w;
-        this.h = h;
-        this.data = []
-        for (let i = 0; i < this.w * this.h; i++) {
-            this.data[i] = 0;
-        }
-    }
-
-    forEachPixel(cb: (val: any, i: number, j: number) => void) {
-        for (let j = 0; j < this.h; j++) {
-            for (let i = 0; i < this.w; i++) {
-                let n = j * this.w + i;
-                let v = this.data[n];
-                cb(v, i, j);
-            }
-        }
-    }
-
-    set_pixel(x: number, y: number, color: any) {
-        let n = y * this.w + x;
-        this.data[n] = color;
-    }
-    get_pixel(x: number, y: number):any {
-        let n = y * this.w + x;
-        return this.data[n]
-    }
-
-    toJsonObj() {
-        return {
-            clazz:'Tilemap',
-            id:this.id,
-            name:this.name,
-            w:this.w,
-            h:this.h,
-            data:this.data,
-        }
-    }
-
-
-}
 
 export type CB = (any) => void;
 export type Etype = "change"|"reload"|"structure"|'main-selection'|'palette-change'
@@ -174,93 +29,6 @@ export class Observable {
     }
 }
 
-export class Sheet {
-    sprites: Sprite[];
-    private id: string;
-    name: string;
-    constructor(id:string, name:string) {
-        this.id = id || gen_id('unknown');
-        this.name = name || 'unknown'
-        this.sprites = []
-    }
-    add(sprite: Sprite) {
-        this.sprites.push(sprite)
-    }
-
-    toJsonObj() {
-        return {
-            clazz:'Sheet',
-            id:this.id,
-            name:this.name,
-            sprites: this.sprites.map(sp => sp.toJsonObj())
-        }
-    }
-}
-type GlyphMeta = {
-    codepoint:number
-    left:number,
-    right:number,
-    baseline:number,
-}
-export class SpriteGlyph extends Sprite {
-    meta: GlyphMeta;
-    constructor(id,name,w,h, doc:Doc) {
-        super(id,name,w,h,doc)
-        this.meta = {
-            codepoint:300,
-            left:0,
-            right:0,
-            baseline:0
-        }
-    }
-    override sync() {
-        let c = this._img.getContext('2d')
-        this.forEachPixel((v,i,j)=>{
-            if(v %2 === 0) {
-                c.fillStyle = 'white'
-                c.fillRect(i, j, 1, 1)
-            }
-            if(v%2 === 1) {
-                c.fillStyle = 'black'
-                c.fillRect(i, j, 1, 1)
-            }
-        })
-    }
-
-    toJsonObj():object {
-        let obj = super.toJsonObj()
-        // @ts-ignore
-        obj.clazz = 'Glyph'
-        // @ts-ignore
-        obj.meta = this.meta
-        // @ts-ignore
-        // console.log("saving out",obj.meta)
-        return obj
-    }
-}
-
-export class SpriteFont {
-    glyphs:SpriteGlyph[]
-    private id: string;
-    name: string;
-    constructor(id,name, doc:Doc) {
-        this.id = id || gen_id('unknown');
-        this.name = name || 'unknown'
-        this.glyphs = []
-    }
-    toJsonObj() {
-        return {
-            clazz:'Font',
-            id:this.id,
-            name:this.name,
-            glyphs: this.glyphs.map(sp => sp.toJsonObj())
-        }
-    }
-
-    add(spriteGlyph: SpriteGlyph) {
-        this.glyphs.push(spriteGlyph)
-    }
-}
 
 function obj_to_class(sh, doc:Doc) {
     if(sh.clazz === 'Sprite') {
@@ -280,7 +48,7 @@ function obj_to_class(sh, doc:Doc) {
         return sheet
     }
     if(sh.clazz === 'Font') {
-        let font = new SpriteFont(sh.id,sh.name, doc)
+        let font = new SpriteFont(sh.id,sh.name)
         font.glyphs = sh.glyphs.map(g => obj_to_class(g, doc))
         return font
     }
@@ -297,7 +65,7 @@ function obj_to_class(sh, doc:Doc) {
     throw new Error(`don't know how to deserialize ${sh.clazz}`)
 }
 
-export class Doc extends Observable {
+export class Doc extends Observable implements Palette {
     sheets: Sheet[]
     fonts: SpriteFont[]
     maps:Tilemap[]
@@ -334,7 +102,7 @@ export class Doc extends Observable {
         tilemap.set_pixel(0, 0, 'sprite1');
         this.maps = [tilemap]
         this.map_grid_visible = true;
-        let font = new SpriteFont(gen_id('font'),'somefont',this)
+        let font = new SpriteFont(gen_id('font'),'somefont')
         let glyph = new SpriteGlyph(gen_id('glyph'),'a',8,8,this)
         font.glyphs.push(glyph)
         this.fonts = [font]
@@ -342,6 +110,10 @@ export class Doc extends Observable {
         this.selected_tree_item = null
         this._dirty = false
         this.name = 'unnamed-project'
+    }
+
+    get_color_palette(): string[] {
+        return this._palette
     }
 
     palette(): string[] {
@@ -476,15 +248,15 @@ export class Doc extends Observable {
         }
     }
 
-    set_palette(palette: string[]) {
-        this._palette = palette
-        this.fire('palette-change',this._palette)
-        this.sheets.forEach(sh => {
-            sh.sprites.forEach(sp => {
-                sp.sync()
-            })
-        })
-    }
+    // set_palette(palette: string[]) {
+    //     this._palette = palette
+    //     this.fire('palette-change',this._palette)
+    //     this.sheets.forEach(sh => {
+    //         sh.sprites.forEach(sp => {
+    //             sp.sync()
+    //         })
+    //     })
+    // }
 }
 
 export function draw_sprite(sprite: Sprite, ctx: CanvasSurface, x: number, y: number, scale: number, palette:string[]) {

@@ -14,7 +14,7 @@ import {
     forceDownloadBlob,
     jsonObjToBlob,
     on
-} from "../../common/util";
+} from "../../src/util";
 import {
     CHERRY_BLOSSOM,
     DEMI_CHROME,

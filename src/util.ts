@@ -1,4 +1,4 @@
-import {Callback, Observable} from "../lib/src/common";
+import {Callback} from "thneed-gfx";
 
 export function on(target: Observable, event_type: string, cb: Callback) {
     target.addEventListener(event_type, cb);
@@ -9,11 +9,6 @@ function wait(msec: number, cb: Callback) {
         cb({})
     }, msec)
 }
-
-export function randi(min: number, max: number) {
-    return Math.floor(min + Math.random() * (max - min))
-}
-
 
 export function canvasToPNGBlob(canvas) {
     return new Promise((res,rej)=>{

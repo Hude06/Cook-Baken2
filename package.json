@@ -1,22 +1,13 @@
 {
-  "name": "spritesheet_editor",
-  "version": "1.0.0",
-  "description": "",
-  "source": "src/snake.html",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "npx tsc",
-    "local-dev": "npx parcel apps/tileeditor/index.html",
-    "snake-dev": "npx parcel apps/snake/snake.html",
-    "snake-build": "npx parcel build",
-    "guitest": "npx parcel lib/src/guitest.html",
-    "minesweeper-dev": "npx parcel apps/minesweeper/minesweeper.html"
-  },
-  "author": "",
-  "license": "ISC",
+  "name": "snake",
+  "version": "0.0.1",
   "dependencies": {
-    "guilib": "^1.0.0",
     "parcel": "^2.3.2",
+    "thneed-gfx": "^0.1.3",
     "typescript": "^4.5.5"
+  },
+  "scripts": {
+    "dev": "npx parcel src/Baken.html",
+    "build": "npx parcel build src/Baken.html"
   }
 }

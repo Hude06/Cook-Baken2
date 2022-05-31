@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="./style.css">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
 <head>
 
@@ -9,28 +9,18 @@
     <link href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet"> 
     <meta charset="UTF-8">
     <title>Cook-The-Baken</title>
-    <button type="button" id="pay-button">Pay</button>
-    <button type="button" id="Toast">Toast</button>
-    <!-- <button type="button" id="forward">forward</button>  -->
-
-
-    <h1>COOK-THE-BAKEN</h1>
-
     </head>
 
 
 <body>
+    <h1>COOK-THE-BAKEN</h1>
+    <button type="button" id="pay-button">Pay</button>
+    <button type="button" id="toast">Toast</button>
+    <button type="button" id="world-button">Baken World</button>
 
-    <div id="wrapper">
-    </div>
-
-<script type="module">
-    import {start} from "./Baken.ts"
-    start()
-</script>
-<script>
-
-  </script>
-
+    <script type="module">
+        import {start} from "./Baken.ts"
+        start()
+    </script>
 </body>
 </html>
