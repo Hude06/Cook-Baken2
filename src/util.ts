@@ -13,15 +13,15 @@ function wait(msec: number, cb: Callback) {
 }
 
 export function canvasToPNGBlob(canvas) {
-    return new Promise((res,rej)=>{
-        canvas.toBlob((blob)=>{
+    return new Promise((res, rej) => {
+        canvas.toBlob((blob) => {
             res(blob)
-        },'image/png')
+        }, 'image/png')
     })
 }
 
-export function forceDownloadBlob(title,blob) {
-    console.log("forcing download of",title)
+export function forceDownloadBlob(title, blob) {
+    console.log("forcing download of", title)
     const a = document.createElement('a')
     a.href = URL.createObjectURL(blob)
     a.download = title
@@ -31,7 +31,7 @@ export function forceDownloadBlob(title,blob) {
 }
 
 export function jsonObjToBlob(toJsonObj: any) {
-    let str = JSON.stringify(toJsonObj,null, '   ');
+    let str = JSON.stringify(toJsonObj, null, '   ');
     return new Blob([str]);
 }
 
