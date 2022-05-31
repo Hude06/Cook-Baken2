@@ -1,6 +1,8 @@
 import {Callback} from "thneed-gfx";
+import {Observable} from "../apps/tileeditor/app-model";
 
 export function on(target: Observable, event_type: string, cb: Callback) {
+    // @ts-ignore
     target.addEventListener(event_type, cb);
 }
 
