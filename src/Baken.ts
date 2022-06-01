@@ -35,7 +35,7 @@ const SPEEDS = [
     4, 4, 4
 ]
 const START_POSITION = new Point(15, 15)
-const CANVAS_SIZE = new Size(43, 20)
+const CANVAS_SIZE = new Size(46, 20)
 const BOARD_SIZE = new Size(20, 20)
 const EMPTY = 0;
 const WALL = 1;
@@ -186,7 +186,7 @@ class ScoreView extends BaseView {
         g.ctx.save()
         g.ctx.translate(this.position().x, this.position().y)
         // g.fillBackgroundSize(this.size(),'red')
-        this.set_size(new Size(300, 480))
+        this.set_size(new Size(400, 480))
         g.fillBackgroundSize(this.size(), '#00ffab')
 
 
@@ -272,7 +272,7 @@ class ToasterView extends BaseView {
         g.ctx.save()
         g.ctx.translate(this.position().x, this.position().y)
         // g.fillBackgroundSize(this.size(),'red')
-        // this.set_size(new Size(300,480))
+        //this.set_size(new Size(,480))
         g.fillBackgroundSize(this.size(), '#a9aaaa')
         g.fillStandardText('Toaster', 150, 20, 'base', 2)
 
