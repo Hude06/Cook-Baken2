@@ -19,7 +19,7 @@ import {
 // @ts-ignore
 import snake_json from "./snake.json";
 import {GridModel} from "./models";
-import {Doc} from "../apps/tileeditor/app-model";
+import {Doc} from "./app-model";
 
 const SCALE = 3
 const SPEEDS = [
