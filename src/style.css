@@ -13,16 +13,16 @@ button.visible {
 }
 
 #world-button {
-    font-size: 20px;
-    position:absolute; left:320px; top:170px;
+    font-size: 16px;
+    position:absolute; left:300px; top:155px;
 }
 #pay-button {
     font-size: 20px;
     position:absolute; left:100px; top:143px;
 }
 #toast {
-    font-size: 24px;
-    position:absolute; left:320px; top:200px;
+    font-size: 98px;
+    position:absolute; left:398px; top:250px;
 }
 
 #forward {
