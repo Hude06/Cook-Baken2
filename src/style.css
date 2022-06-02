@@ -35,13 +35,11 @@ button.visible {
 }
 body {
     background-color: aquamarine;
-    margin: 0;
-}
-#wrapper {
     display: flex;
-    margin-left: 126.5px;
-    border: 1px solid red;
+    flex-direction: column;
+    align-items: center;
 }
+
 h1 {
     font-family: 'Anton', sans-serif;
     font-size: 60px;
@@ -64,11 +62,6 @@ h1 {
 .visible {
     display: block;
 }
-
-
-@media only screen and (orientation:landscape){
-    #wrapper {width:1024px}
-    }
 
 
 

@@ -41,13 +41,13 @@ const EMPTY = 0;
 const WALL = 1;
 const BAKEN = 4;
 const TOSTER = 6;
+const DOOR = 7;
 const BILL_POSITION = new Point(8 * SCALE * 0, 8 * SCALE * 0)
 const GRID_POSITION = new Point(8 * SCALE * 12, 8 * SCALE * 0)
 const TOASTER_POSITION = new Point(4 * SCALE * 13, 4 * SCALE * 1)
 const SCORE_POSITION = new Point(8 * SCALE * 16, 8 * SCALE * 0)
 const HOME_POSTION = new Point(14 * SCALE * -4, 8 * SCALE * 0)
-const SHRINK_ODDS = 3
-const BAKEN_ODDS = 4
+
 
 class BakenModel {
     position: Point
@@ -87,6 +87,7 @@ class GridView extends BaseParentView {
     private wall_right: Sprite;
     private empty: Sprite;
     private toster: Sprite;
+    private door: Sprite;
     private baken: Sprite;
     private wall_top: Sprite;
     private wall_bottom: Sprite;
@@ -102,6 +103,7 @@ class GridView extends BaseParentView {
         this.empty = sheet.sprites.find(s => s.name === 'ground')
         this.toster = sheet.sprites.find(s => s.name === 'bed')
         this.baken = sheet.sprites.find(s => s.name === 'baken')
+        this.door = sheet.sprites.find(s => s.name === 'Door')
     }
 
     draw(g: CanvasSurface): void {
@@ -115,15 +117,18 @@ class GridView extends BaseParentView {
             let xx = x * 8 * SCALE
             let yy = y * 8 * SCALE
             g.fill(new Rect(xx, yy, 1 * 8 * SCALE, 1 * 8 * SCALE), color);
-            if (w === EMPTY) g.draw_sprite(xx, yy, this.empty, SCALE)
+            let pt = new Point(xx,yy)
+            if (w === EMPTY) g.draw_sprite(pt, this.empty)
             if (w === WALL) {
-                if (x === 0) g.draw_sprite(xx, yy, this.wall_left, SCALE)
-                if (x === this.model.w - 1) g.draw_sprite(xx, yy, this.wall_right, SCALE)
-                if (y === 0) g.draw_sprite(xx, yy, this.wall_top, SCALE)
-                if (y === this.model.w - 1) g.draw_sprite(xx, yy, this.wall_bottom, SCALE)
+                if (x === 0) g.draw_sprite(pt, this.wall_left)
+                if (x === this.model.w - 1) g.draw_sprite(pt, this.wall_right)
+                if (y === 0) g.draw_sprite(pt, this.wall_top)
+                if (y === this.model.w - 1) g.draw_sprite(pt, this.wall_bottom)
             }
-            if (w === BAKEN) g.draw_sprite(xx, yy, this.baken, SCALE)
-            if (w === TOSTER) g.draw_sprite(xx, yy, this.toster, SCALE)
+            if (w === BAKEN) g.draw_sprite(pt, this.baken,)
+            if (w === TOSTER) g.draw_sprite(pt, this.toster)
+            if (w === DOOR) g.draw_sprite(pt, this.door)
+
 
 
         })
@@ -154,7 +159,7 @@ class BakenView extends BaseView {
     draw(g: CanvasSurface): void {
         g.ctx.imageSmoothingEnabled = false
         // g.fill(new Rect(0,0,16,16),'#ff0000')
-        g.draw_sprite(GRID_POSITION.x, GRID_POSITION.y, this.sprite_slice, SCALE)
+        g.draw_sprite(GRID_POSITION, this.sprite_slice)
     }
 
     position(): Point {
@@ -377,6 +382,8 @@ export async function start() {
     doc.reset_from_json(snake_json)
 
     let surface = new CanvasSurface(CANVAS_SIZE.w * 8 * SCALE, CANVAS_SIZE.h * 8 * SCALE);
+    surface.set_smooth_sprites(false)
+    surface.set_sprite_scale(3)
     surface.load_jsonfont(doc, 'base', 'base')
 
 
@@ -488,6 +495,7 @@ export async function start() {
         board.fill_col(board.w - 1, () => WALL)
         board.set_at(new Point(randi(1, 16), 7), BAKEN)
         board.set_at(new Point(10, 1), TOSTER)
+        board.set_at(new Point(19,9), DOOR)
     }
 
     let clock = 0
@@ -499,6 +507,13 @@ export async function start() {
             return
         }
         if (spot === TOSTER) {
+            toaster_view.set_visible(true)
+            world_button.classList.add("visible")
+            toast.classList.add("visible")
+
+            return
+        }
+        if (spot === DOOR) {
             toaster_view.set_visible(true)
             world_button.classList.add("visible")
             toast.classList.add("visible")
