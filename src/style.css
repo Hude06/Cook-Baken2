@@ -14,15 +14,15 @@ button.visible {
 
 #world-button {
     font-size: 16px;
-    position:absolute; left:300px; top:155px;
+    position:absolute; left:450px; top:160px;
 }
 #pay-button {
     font-size: 20px;
-    position:absolute; left:100px; top:143px;
+    position:absolute; left:230px; top:150px;
 }
 #toast {
     font-size: 98px;
-    position:absolute; left:398px; top:250px;
+    position:absolute; left:525px; top:250px;
 }
 
 #forward {

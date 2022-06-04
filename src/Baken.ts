@@ -14,26 +14,12 @@ import {
     SpriteFont,
     Tilemap,
 } from "thneed-gfx";
-
-
 // @ts-ignore
 import snake_json from "./snake.json";
 import {GridModel} from "./models";
 import {Doc} from "./app-model";
 
 const SCALE = 3
-const SPEEDS = [
-    40, 35, 30, 25, 20, 20, 20,
-    15, 15, 15,
-    13, 13, 13,
-    10, 10, 10,
-    9, 9, 9,
-    8, 8, 8,
-    7, 7, 7,
-    6, 6, 6,
-    5, 5, 5,
-    4, 4, 4
-]
 const START_POSITION = new Point(15, 15)
 const CANVAS_SIZE = new Size(46, 20)
 const BOARD_SIZE = new Size(20, 20)
@@ -42,12 +28,13 @@ const WALL = 1;
 const BAKEN = 4;
 const TOSTER = 6;
 const DOOR = 7;
+const COIN = 8;
 const BILL_POSITION = new Point(8 * SCALE * 0, 8 * SCALE * 0)
 const GRID_POSITION = new Point(8 * SCALE * 12, 8 * SCALE * 0)
 const TOASTER_POSITION = new Point(4 * SCALE * 13, 4 * SCALE * 1)
 const SCORE_POSITION = new Point(8 * SCALE * 16, 8 * SCALE * 0)
 const HOME_POSTION = new Point(14 * SCALE * -4, 8 * SCALE * 0)
-
+const ROOM_POSTION = new Point(14 * SCALE * -4, 8 * SCALE * 0)
 
 class BakenModel {
     position: Point
@@ -91,6 +78,7 @@ class GridView extends BaseParentView {
     private baken: Sprite;
     private wall_top: Sprite;
     private wall_bottom: Sprite;
+    private coin2: Sprite;
 
     constructor(model: GridModel, sheet: Sheet) {
         super('grid-view')
@@ -104,6 +92,8 @@ class GridView extends BaseParentView {
         this.toster = sheet.sprites.find(s => s.name === 'bed')
         this.baken = sheet.sprites.find(s => s.name === 'baken')
         this.door = sheet.sprites.find(s => s.name === 'Door')
+        this.coin2 = sheet.sprites.find(s => s.name === 'Coin')
+
     }
 
     draw(g: CanvasSurface): void {
@@ -113,7 +103,6 @@ class GridView extends BaseParentView {
             let color = 'white'
             if (w === EMPTY) color = 'white'
             if (w === WALL) color = 'blue'
-
             let xx = x * 8 * SCALE
             let yy = y * 8 * SCALE
             g.fill(new Rect(xx, yy, 1 * 8 * SCALE, 1 * 8 * SCALE), color);
@@ -128,6 +117,8 @@ class GridView extends BaseParentView {
             if (w === BAKEN) g.draw_sprite(pt, this.baken,)
             if (w === TOSTER) g.draw_sprite(pt, this.toster)
             if (w === DOOR) g.draw_sprite(pt, this.door)
+            if (w === COIN) g.draw_sprite(pt, this.coin2)
+
 
 
 
@@ -179,12 +170,11 @@ class ScoreView extends BaseView {
     private font: SpriteFont;
     private Baken: BakenModel;
 
-    constructor(score: ScoreModel, baken: BakenModel, font: SpriteFont) {
+    constructor(score: ScoreModel, baken: BakenModel, font: SpriteFont, coin_sprite:Sprite) {
         super('score-view')
         this.score = score;
         this.Baken == baken;
         this.font = font;
-
     }
 
     draw(g: CanvasSurface): void {
@@ -295,6 +285,53 @@ class ToasterView extends BaseView {
         g.ctx.restore()
     }
 
+
+    layout(g: CanvasSurface, available: Size): Size {
+        this.set_size(new Size(8 * SCALE * 18, 8 * SCALE * 18))
+        return this.size()
+    }
+}
+
+class RoomView extends BaseView {
+    // private score: ScoreModel;
+    // private font: SpriteFont;
+    // private Baken: BakenModel;
+
+    constructor() {
+        super('score-view')
+        // this.score = score;
+        // this.Baken == baken;
+        // this.font = font;
+
+    }
+
+    set_visible(visible: boolean) {
+        this._visible = visible
+    }
+
+    draw(g: CanvasSurface): void {
+        g.ctx.save()
+        g.ctx.translate(this.position().x, this.position().y)
+        // g.fillBackgroundSize(this.size(),'red')
+        //this.set_size(new Size(,480))
+        g.fillBackgroundSize(this.size(), '#a9aaaa')
+        g.fillStandardText('Toaster', 150, 20, 'base', 2)
+
+
+        let lines = [
+            // `Baken ${this.score.lives}`,
+            // `Coins ${this.score.coin}`,
+            // `CookedBaken ${this.score.CookedBaken}`,
+
+
+        ]
+        lines.forEach((str, i) => {
+            g.fillStandardText(str, 10, 16 * i * 4 + 32, 'base', 2)
+        })
+        g.ctx.restore()
+    }
+    
+
     layout(g: CanvasSurface, available: Size): Size {
         this.set_size(new Size(8 * SCALE * 18, 8 * SCALE * 18))
         return this.size()
@@ -336,19 +373,15 @@ class SplashView extends BaseView {
         this._visible = visible
     }
 }
-
 class DialogView extends BaseView {
     private text: string;
     private map: Tilemap;
     private sheet: Sheet;
-
     constructor(map: Tilemap, sheet: Sheet) {
         super('dialog-view');
         this.map = map
         this.sheet = sheet
-        this.text = ''
     }
-
     draw(g: CanvasSurface): void {
         g.fillBackgroundSize(this.size(), 'rgba(255,255,255,0.0)')
         let sprite_w = this.sheet.sprites[0].w
@@ -374,19 +407,14 @@ class DialogView extends BaseView {
         this.text = died
     }
 }
-
 export async function start() {
     log("starting", snake_json)
-    log("total level count =", SPEEDS.length)
     let doc = new Doc()
     doc.reset_from_json(snake_json)
-
     let surface = new CanvasSurface(CANVAS_SIZE.w * 8 * SCALE, CANVAS_SIZE.h * 8 * SCALE);
     surface.set_smooth_sprites(false)
     surface.set_sprite_scale(3)
     surface.load_jsonfont(doc, 'base', 'base')
-
-
     let root = new LayerView()
     let baken = new BakenModel()
     baken.position.copy_from(START_POSITION);
@@ -409,7 +437,8 @@ export async function start() {
 
 
     let score = new ScoreModel()
-    let score_view = new ScoreView(score, baken, doc.fonts[0])
+    let score_view = new ScoreView(score, baken, doc.fonts[0],doc.sheets[0].sprites.find(s => s.name === 'Coin'))
+
     score_view.set_position(SCORE_POSITION)
     board_layer.add(score_view)
 
@@ -421,8 +450,14 @@ export async function start() {
     let toaster_view = new ToasterView();
     toaster_view.set_position(TOASTER_POSITION)
     root.add(toaster_view)
+    
+    let room_view = new RoomView();
+    room_view.set_position(ROOM_POSTION)
+    root.add(room_view)
 
     toaster_view.set_visible(false)
+    room_view.set_visible(false)
+
     let splash_layer = new SplashView();
     root.add(splash_layer);
 
@@ -439,6 +474,7 @@ export async function start() {
     pay_button.addEventListener('click', () => {
         if (score.coin > 1) {
             score.bill -= 1
+            score.coin -= 1
         }
     })
 
@@ -468,10 +504,10 @@ export async function start() {
                 nextLevel()
             }
 
-            if (e.key === 'ArrowLeft') turn_to(new Point(-1, 0));
-            if (e.key === 'ArrowRight') turn_to(new Point(+1, 0));
-            if (e.key === 'ArrowUp') turn_to(new Point(+0, -1));
-            if (e.key === 'ArrowDown') turn_to(new Point(+0, +1));
+            if (e.key === 'ArrowLeft' || e.key==='a') turn_to(new Point(-1, 0));
+            if (e.key === 'ArrowRight' || e.key==='d') turn_to(new Point(+1, 0));
+            if (e.key === 'ArrowUp' || e.key==='w') turn_to(new Point(+0, -1));
+            if (e.key === 'ArrowDown' || e.key === 's') turn_to(new Point(+0, +1));
         }
     })
     let playing = false
@@ -487,15 +523,27 @@ export async function start() {
         baken.position.copy_from(START_POSITION);
     }
 
+    function spawn_object(type:number) {
+        while (true) {
+            let pt = new Point(randi(1,16), randi(1,16))
+            if(board.get_at(pt) === EMPTY) {
+                board.set_at(pt, type)
+                break;
+            }
+        }
+    }
     function nextLevel() {
         board.fill_all(() => EMPTY);
         board.fill_row(0, () => WALL)
         board.fill_col(0, () => WALL)
         board.fill_row(board.h - 1, () => WALL)
         board.fill_col(board.w - 1, () => WALL)
-        board.set_at(new Point(randi(1, 16), 7), BAKEN)
+        // board.set_at(new Point(randi(1, 16), 7), BAKEN )
         board.set_at(new Point(10, 1), TOSTER)
         board.set_at(new Point(19,9), DOOR)
+        spawn_object(COIN)
+        spawn_object(BAKEN)
+
     }
 
     let clock = 0
@@ -506,6 +554,16 @@ export async function start() {
         if (spot === WALL) {
             return
         }
+        if (spot === COIN) {
+            board.set_at(new_position, EMPTY)
+            score.coin += 1
+            spawn_object(COIN)
+            return        
+        }
+        if (spot === DOOR) {
+            room_view.set_visible(true)
+            pay_button.classList.remove("visible")
+        }
         if (spot === TOSTER) {
             toaster_view.set_visible(true)
             world_button.classList.add("visible")
@@ -513,13 +571,7 @@ export async function start() {
 
             return
         }
-        if (spot === DOOR) {
-            toaster_view.set_visible(true)
-            world_button.classList.add("visible")
-            toast.classList.add("visible")
 
-            return
-        }
 
         baken.position = new_position
     }
