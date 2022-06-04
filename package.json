@@ -8,6 +8,6 @@
   },
   "scripts": {
     "dev": "npx parcel src/Baken.html",
-    "build": "npx parcel build src/Baken.html"
+    "build": "npx parcel build --public-url ./ src/Baken.html"
   }
 }
